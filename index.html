@@ -4,11 +4,83 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>De Klantenmachine - De Blije Knip</title>
+  <title>De Klantenmachine | De Blije Knip</title>
+  <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f3f7f2;
+      text-align: center;
+      padding: 20px;
+      color: #203820;
+    }
+    main {
+      max-width: 450px;
+      margin: auto;
+      background: white;
+      border-radius: 15px;
+      padding: 22px;
+    }
+    h1 { color: #24733c; }
+    button {
+      background: #24733c;
+      color: white;
+      border: 0;
+      border-radius: 8px;
+      padding: 15px;
+      font-size: 17px;
+      width: 100%;
+      margin: 12px 0;
+    }
+    #reader { width: 100%; }
+    #resultaat { font-weight: bold; margin-top: 16px; }
+  </style>
 </head>
 <body>
-  <h1>De Klantenmachine</h1>
-  <h2>De Blije Knip - Krommenie</h2>
-  <p>De website werkt!</p>
+  <main>
+    <h1>De Klantenmachine</h1>
+    <h2>De Blije Knip - Krommenie</h2>
+    <p>Test de camera door op de knop te drukken.</p>
+
+    <button id="start" onclick="startScanner()">
+      Start camera
+    </button>
+
+    <div id="reader"></div>
+    <p id="resultaat">Nog geen barcode gescand.</p>
+  </main>
+
+  <script>
+    let scanner;
+
+    async function startScanner() {
+      const resultaat = document.getElementById("resultaat");
+      const knop = document.getElementById("start");
+
+      if (typeof Html5Qrcode === "undefined") {
+        resultaat.textContent = "Scannerbibliotheek kon niet laden.";
+        return;
+      }
+
+      knop.disabled = true;
+      scanner = new Html5Qrcode("reader");
+
+      try {
+        await scanner.start(
+          { facingMode: "environment" },
+          { fps: 10 },
+          async (code) => {
+            resultaat.textContent = "Barcode gelezen: " + code;
+            await scanner.stop();
+            knop.disabled = false;
+          }
+        );
+        resultaat.textContent = "Camera actief. Scan een barcode.";
+      } catch (fout) {
+        resultaat.textContent = "Camerafout: " + fout;
+        knop.disabled = false;
+      }
+    }
+  </script>
 </body>
 </html>
